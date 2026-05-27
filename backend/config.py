@@ -12,7 +12,26 @@ load_dotenv(ROOT / ".env")
 PORT = int(os.getenv("PORT", os.getenv("LINK_VAULT_PORT", "8787")))
 _default_host = "0.0.0.0" if os.getenv("PORT") or os.getenv("RENDER") else "127.0.0.1"
 HOST = os.getenv("LINK_VAULT_HOST", _default_host)
-DB_PATH = Path(os.getenv("LINK_VAULT_DB", str(ROOT / "data" / "link_vault.db")))
+
+
+def _resolve_db_path() -> Path:
+    raw = os.getenv("LINK_VAULT_DB", str(ROOT / "data" / "link_vault.db"))
+    path = Path(raw)
+    if not path.is_absolute():
+        path = ROOT / path
+    for candidate in (path, ROOT / "data" / "link_vault.db"):
+        try:
+            candidate.parent.mkdir(parents=True, exist_ok=True)
+            probe = candidate.parent / ".write_probe"
+            probe.write_text("1", encoding="utf-8")
+            probe.unlink(missing_ok=True)
+            return candidate
+        except OSError:
+            continue
+    return ROOT / "data" / "link_vault.db"
+
+
+DB_PATH = _resolve_db_path()
 
 # Required on public deploy; leave empty for trusted local-only use.
 API_KEY = os.getenv("LINK_VAULT_API_KEY", "").strip()

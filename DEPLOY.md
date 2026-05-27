@@ -6,12 +6,27 @@ Create a repo containing the `link-vault/` folder (repo root can be `link-vault`
 
 ## 2. Create Render service
 
+### Important: Root Directory
+
+If your GitHub repo is **`spl_projects`** (parent folder), set:
+
+- **Root Directory:** `link-vault`
+
+Or use the **`render.yaml` at the repo root** (`spl_projects/render.yaml`) which sets `rootDir: link-vault`.
+
+If the repo is **only** `link-vault/`, leave Root Directory empty.
+
+### Health check failed?
+
+Usually means the app never started. Check **Logs** for `ModuleNotFoundError: backend` → wrong Root Directory.
+
 1. Go to [render.com](https://render.com) → **New** → **Blueprint** (or Web Service).
 2. Connect your GitHub repo.
 3. If not using Blueprint, set:
+   - **Root Directory:** `link-vault` (monorepo)
    - **Build:** `pip install -r requirements.txt`
    - **Start:** `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
-   - **Health check:** `/api/health`
+   - **Health check path:** `/api/health`
 
 Or click **Apply Blueprint** if `render.yaml` is at repo root.
 
@@ -24,7 +39,7 @@ Or click **Apply Blueprint** if `render.yaml` is at repo root.
 | `OPENAI_API_KEY` | Optional, for smarter summaries |
 | `LINK_VAULT_HOST` | `0.0.0.0` (set automatically in blueprint) |
 
-**Disk:** Attach a **1GB disk** mounted at `/var/data` (Starter plan). Without it, SQLite resets on redeploy.
+**Data:** Default DB path is `./data/link_vault.db` inside the app (ephemeral on free tier; survives until redeploy). Optional: attach a Render disk and set `LINK_VAULT_DB=/var/data/link_vault.db`.
 
 Copy your public URL, e.g. `https://link-vault-xxxx.onrender.com`.
 

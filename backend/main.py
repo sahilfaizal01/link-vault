@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -21,7 +23,22 @@ from .processor import process_item, process_pending
 ROOT = Path(__file__).resolve().parents[1]
 WEB_DIR = ROOT / "web"
 
-app = FastAPI(title="Link Vault", version="0.1.0")
+logger = logging.getLogger("link_vault")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        init_db()
+        from .config import DB_PATH
+
+        logger.info("DB ready at %s", DB_PATH)
+    except Exception as exc:
+        logger.exception("DB init failed (health still OK): %s", exc)
+    yield
+
+
+app = FastAPI(title="Link Vault", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -56,16 +73,14 @@ class PasteImportRequest(BaseModel):
     process: bool = True
 
 
-@app.on_event("startup")
-def on_startup() -> None:
-    init_db()
-
-
 @app.get("/api/health")
 def health() -> dict[str, str]:
+    from .config import DB_PATH
+
     return {
         "status": "ok",
         "auth_required": bool(API_KEY),
+        "db_path": str(DB_PATH),
     }
 
 

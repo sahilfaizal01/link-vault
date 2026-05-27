@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Link Vault</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Personal reading OS</p>
+        <h1>Link Vault</h1>
+        <p class="subtitle">
+          Save links from anywhere. AI groups them into buckets and turns the pile into a digest you can actually read.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button id="refreshBtn" class="btn secondary">Refresh</button>
+        <button id="digestBtn" class="btn primary">Generate digest</button>
+        <button id="reclassifyBtn" class="btn secondary" title="Apply new bucket labels to all saved links">Reclassify all</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel save-panel">
+        <h2>Quick save</h2>
+        <form id="saveForm" class="save-form">
+          <input
+            id="urlInput"
+            type="url"
+            placeholder="Paste LinkedIn, blog, or article URL"
+            required
+          />
+          <input id="noteInput" type="text" placeholder="Optional note (why you saved it)" />
+          <button type="submit" class="btn primary">Save link</button>
+        </form>
+        <p id="saveStatus" class="status"></p>
+      </section>
+
+      <section class="panel import-panel">
+        <h2>Import existing links</h2>
+        <p class="summary">
+          Pull URLs from your “message yourself” WhatsApp chat or Google Chat export. Live API sync is not wired yet — use export files or paste.
+        </p>
+        <div class="import-grid">
+          <div class="import-card">
+            <h3>WhatsApp</h3>
+            <p class="summary">Chat → ⋮ → Export chat → <strong>Without media</strong> → upload .txt</p>
+            <input id="whatsappFile" type="file" accept=".txt,text/plain" />
+            <button id="whatsappImportBtn" class="btn primary" type="button">Import WhatsApp export</button>
+          </div>
+          <div class="import-card">
+            <h3>Google Chat</h3>
+            <p class="summary">
+              <a href="https://takeout.google.com" target="_blank" rel="noreferrer">Google Takeout</a>
+              → Google Chat JSON, or paste copied messages below
+            </p>
+            <input id="googleChatFile" type="file" accept=".json,application/json,.txt" />
+            <button id="googleChatImportBtn" class="btn primary" type="button">Import Google Chat</button>
+          </div>
+        </div>
+        <label class="paste-label">
+          Or paste any chat dump / message block with URLs
+          <textarea id="pasteInput" rows="4" placeholder="Paste messages from WhatsApp or Google Chat..."></textarea>
+        </label>
+        <button id="pasteImportBtn" class="btn secondary" type="button">Import from paste</button>
+        <p id="importStatus" class="status"></p>
+      </section>
+
+      <section class="panel stats-panel">
+        <h2>Overview</h2>
+        <div id="stats" class="stats-grid"></div>
+      </section>
+
+      <section class="panel digest-panel hidden" id="digestPanel">
+        <h2>Weekly digest</h2>
+        <div id="digestContent"></div>
+      </section>
+
+      <section class="panel buckets-panel">
+        <div class="panel-header">
+          <h2>Buckets</h2>
+          <input id="searchInput" type="search" placeholder="Search saved links" />
+        </div>
+        <div id="bucketFilters" class="chip-row"></div>
+        <div id="itemsList" class="items-list"></div>
+      </section>
+    </main>
+
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

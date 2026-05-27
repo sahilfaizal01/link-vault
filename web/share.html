@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#6ea8ff" />
+    <title>Save to Link Vault</title>
+    <link rel="manifest" href="/assets/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/share.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <p class="eyebrow">Link Vault</p>
+      <h1 id="headline">Saving link…</h1>
+      <p id="detail" class="detail"></p>
+      <p id="urlPreview" class="url-preview"></p>
+
+      <section id="setupPanel" class="setup hidden">
+        <h2>First-time setup</h2>
+        <p class="detail">Enter your deployed server URL and API key from Render.</p>
+        <label>
+          Server URL
+          <input id="serverUrl" type="url" placeholder="https://link-vault.onrender.com" />
+        </label>
+        <label>
+          API key
+          <input id="apiKey" type="password" placeholder="From Render env LINK_VAULT_API_KEY" />
+        </label>
+        <button id="saveSetupBtn" class="btn primary" type="button">Save settings</button>
+      </section>
+
+      <div class="actions">
+        <a id="openDash" class="btn secondary" href="/">Open dashboard</a>
+        <button id="retryBtn" class="btn primary hidden" type="button">Try again</button>
+      </div>
+    </main>
+    <script src="/assets/share.js"></script>
+  </body>
+</html>

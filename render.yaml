@@ -1,0 +1,25 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: link-vault
+    runtime: python
+    plan: starter
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.3"
+      - key: LINK_VAULT_HOST
+        value: 0.0.0.0
+      - key: LINK_VAULT_DB
+        value: /var/data/link_vault.db
+      - key: LINK_VAULT_API_KEY
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+    disk:
+      name: link-vault-data
+      mountPath: /var/data
+      sizeGB: 1

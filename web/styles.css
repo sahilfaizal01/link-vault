@@ -135,6 +135,15 @@ textarea {
   resize: vertical;
 }
 
+.settings-form {
+  grid-template-columns: 1fr 1fr auto;
+}
+
+code {
+  font-size: 0.85em;
+  color: #b9d2ff;
+}
+
 .save-form {
   display: grid;
   grid-template-columns: 2fr 1.2fr auto;

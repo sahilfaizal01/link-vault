@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6ea8ff" />
     <title>Link Vault</title>
+    <link rel="manifest" href="/assets/manifest.webmanifest" />
     <link rel="stylesheet" href="/assets/styles.css" />
   </head>
   <body>
@@ -23,6 +25,24 @@
     </header>
 
     <main class="layout">
+      <section class="panel settings-panel">
+        <h2>Server settings (Render / remote)</h2>
+        <p class="summary">
+          After deploy, paste your API key here. Required for dashboard and Android share on
+          <code>onrender.com</code>.
+        </p>
+        <div class="save-form settings-form">
+          <input id="settingsBaseUrl" type="url" placeholder="https://your-app.onrender.com (optional on same host)" />
+          <input id="settingsApiKey" type="password" placeholder="LINK_VAULT_API_KEY from Render" />
+          <button id="saveSettingsBtn" class="btn secondary" type="button">Save settings</button>
+        </div>
+        <p id="settingsStatus" class="status"></p>
+        <p class="summary">
+          <strong>Android:</strong> open your Render URL in Chrome → menu →
+          <strong>Install app</strong> → share from LinkedIn → choose <strong>Link Vault</strong>.
+        </p>
+      </section>
+
       <section class="panel save-panel">
         <h2>Quick save</h2>
         <form id="saveForm" class="save-form">

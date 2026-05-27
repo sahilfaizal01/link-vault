@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -12,7 +12,8 @@ from pydantic import BaseModel, Field, HttpUrl
 
 from . import database as db
 from .ai import build_digest
-from .config import CANONICAL_BUCKETS, HOST, PORT
+from .auth import require_api_key
+from .config import API_KEY, CANONICAL_BUCKETS, HOST, PORT
 from .database import init_db
 from .import_service import import_google_chat_text, import_paste_text, import_whatsapp_text
 from .processor import process_item, process_pending
@@ -31,10 +32,17 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def api_key_middleware(request: Request, call_next):
+    await require_api_key(request)
+    return await call_next(request)
+
+
 class SaveItemRequest(BaseModel):
     url: HttpUrl
     title: str | None = None
     note: str | None = Field(default=None, max_length=2000)
+    import_source: str = Field(default="web", max_length=64)
 
 
 class UpdateItemRequest(BaseModel):
@@ -55,7 +63,10 @@ def on_startup() -> None:
 
 @app.get("/api/health")
 def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "auth_required": bool(API_KEY),
+    }
 
 
 @app.get("/api/features")
@@ -80,11 +91,16 @@ def features() -> dict[str, Any]:
         "workflow": {
             "chrome_extension": True,
             "web_dashboard": True,
+            "android_share_target": True,
             "whatsapp_import": "export_txt",
             "google_chat_import": "takeout_json_or_paste",
             "live_whatsapp_api": False,
             "live_google_chat_api": False,
             "email_digest": False,
+        },
+        "deploy": {
+            "auth_required": bool(API_KEY),
+            "render_ready": True,
         },
     }
 
@@ -98,7 +114,7 @@ async def create_item(payload: SaveItemRequest, background_tasks: BackgroundTask
         title=payload.title,
         note=payload.note,
         domain=domain,
-        import_source="extension",
+        import_source=payload.import_source,
     )
     background_tasks.add_task(process_item, item["id"])
     return item
@@ -269,6 +285,10 @@ def delete_item(item_id: int) -> dict[str, str]:
 
 if WEB_DIR.exists():
     app.mount("/assets", StaticFiles(directory=WEB_DIR), name="assets")
+
+    @app.get("/share")
+    def share_page() -> FileResponse:
+        return FileResponse(WEB_DIR / "share.html")
 
     @app.get("/")
     def index() -> FileResponse:

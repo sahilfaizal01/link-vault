@@ -5,10 +5,19 @@ let searchTimer = null;
 
 const $ = (id) => document.getElementById(id);
 
+function apiHeaders(extra = {}) {
+  const headers = { "Content-Type": "application/json", ...extra };
+  const key = localStorage.getItem("lv_api_key");
+  if (key) {
+    headers["X-Link-Vault-Key"] = key;
+  }
+  return headers;
+}
+
 async function api(path, options = {}) {
   const response = await fetch(`${API}${path}`, {
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
     ...options,
+    headers: apiHeaders(options.headers || {}),
   });
   if (!response.ok) {
     const detail = await response.text();
@@ -206,6 +215,7 @@ $("saveForm").addEventListener("submit", async (event) => {
       body: JSON.stringify({
         url: $("urlInput").value.trim(),
         note: $("noteInput").value.trim() || null,
+        import_source: "web",
       }),
     });
     $("urlInput").value = "";
@@ -258,8 +268,14 @@ async function uploadImport(endpoint, file, statusEl) {
   form.append("file", file);
   statusEl.className = "status";
   statusEl.textContent = "Importing and processing links...";
+  const headers = {};
+  const key = localStorage.getItem("lv_api_key");
+  if (key) {
+    headers["X-Link-Vault-Key"] = key;
+  }
   const response = await fetch(`${API}${endpoint}?process=true`, {
     method: "POST",
+    headers,
     body: form,
   });
   if (!response.ok) {
@@ -331,6 +347,28 @@ $("pasteImportBtn").addEventListener("click", async () => {
     status.textContent = error.message;
   }
 });
+
+$("saveSettingsBtn")?.addEventListener("click", () => {
+  const key = $("settingsApiKey").value.trim();
+  localStorage.setItem("lv_api_key", key);
+  const base = $("settingsBaseUrl").value.trim();
+  if (base) {
+    localStorage.setItem("lv_base", base.replace(/\/$/, ""));
+  }
+  $("settingsStatus").textContent = "Settings saved.";
+  $("settingsStatus").className = "status ok";
+});
+
+(function loadSettings() {
+  const key = localStorage.getItem("lv_api_key") || "";
+  const base = localStorage.getItem("lv_base") || "";
+  if ($("settingsApiKey")) $("settingsApiKey").value = key;
+  if ($("settingsBaseUrl")) $("settingsBaseUrl").value = base;
+})();
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/assets/sw.js").catch(() => {});
+}
 
 refreshAll();
 setInterval(refreshAll, 15000);

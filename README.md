@@ -35,6 +35,10 @@ Each item shows **Captured** date/time (when you saved or imported it). Use **Re
 
 Check runtime flags: `GET /api/features`
 
+## Deploy (Render + Android share)
+
+See **[DEPLOY.md](DEPLOY.md)** for Render setup, API key, and **Share → Link Vault** on Android.
+
 ## Quick start
 
 ```bash
